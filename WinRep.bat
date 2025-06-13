@@ -32,6 +32,10 @@ if exist "%TEMP%\WinRep_PowerShellAdded.flag" (
     exit
     )
 )
+
+REM Ensure PSGallery is registered as a repository for PowerShell modules
+powershell -NoProfile -Command "if (-not (Get-PSRepository | Where-Object { $_.SourceLocation -like 'https://www.powershellgallery.com*' })) { try { Register-PSRepository -Default -ErrorAction Stop } catch { Write-Output 'Error: Unable to register PSGallery.'; exit 1 } }" >> "%masterLog%" 2>&1
+
 REM Ask user for run type
 echo Please select the type of run:
 echo 1. Standard (Update drivers, Repair Windows image, Verify and repair system files, Perform Windows Update)
@@ -99,7 +103,7 @@ goto :eof
 
 :CheckAndRepairDisk
 echo Checking and Repairing Disk...
-chkdsk /f /r C: >> "%logDir%\DiskCheck.log" 2>&1
+echo Y | chkdsk /f /r C: >> "%logDir%\DiskCheck.log" 2>&1
 if %errorlevel% equ 0 (
     echo Disk check completed successfully. >> "%masterLog%"
 ) else (
@@ -134,20 +138,6 @@ if %errorlevel% equ 0 (
     echo Windows Update completed. >> "%masterLog%"
 ) else (
     echo Windows Update failed. See WindowsUpdate.log for details. >> "%masterLog%"
-)
-goto :eof
-
-:RepairBootConfigData
-echo Repairing Boot Configuration Data...
-bcdedit /export C:\BCD_Backup >> "%logDir%\BootRepair.log" 2>&1
-bootrec /fixmbr >> "%logDir%\BootRepair.log" 2>&1
-bootrec /fixboot >> "%logDir%\BootRepair.log" 2>&1
-bootrec /scanos >> "%logDir%\BootRepair.log" 2>&1
-bootrec /rebuildbcd >> "%logDir%\BootRepair.log" 2>&1
-if %errorlevel% equ 0 (
-    echo Boot configuration data repaired successfully. >> "%masterLog%"
-) else (
-    echo Boot repair failed. See BootRepair.log for details. >> "%masterLog%"
 )
 goto :eof
 
