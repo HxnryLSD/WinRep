@@ -133,7 +133,7 @@ goto :eof
 
 :PerformWindowsUpdate
 echo Performing Windows Update...
-powershell -command "try { Install-Module PSWindowsUpdate -Force -SkipPublisherCheck; Import-Module PSWindowsUpdate; Get-WindowsUpdate -Install -AcceptAll -AutoReboot } catch { Write-Output 'Error: Unable to install or import PSWindowsUpdate module.'; exit 1 }" >> "%logDir%\WindowsUpdate.log" 2>&1
+powershell -command "try { Install-Module PSWindowsUpdate -Force -SkipPublisherCheck; Import-Module PSWindowsUpdate; Get-WindowsUpdate -Install -AcceptAll } catch { Write-Output 'Error: Unable to install or import PSWindowsUpdate module.'; exit 1 }" >> "%logDir%\WindowsUpdate.log" 2>&1
 if %errorlevel% equ 0 (
     echo Windows Update completed. >> "%masterLog%"
 ) else (
